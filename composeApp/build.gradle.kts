@@ -70,9 +70,11 @@ kotlin {
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtimeCompose)
             implementation(libs.androidx.navigation.compose)
+            implementation(libs.multiplatformSettings)
         }
         commonTest.dependencies {
             implementation(libs.kotlin.test)
+            implementation(libs.multiplatformSettingsTest)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
