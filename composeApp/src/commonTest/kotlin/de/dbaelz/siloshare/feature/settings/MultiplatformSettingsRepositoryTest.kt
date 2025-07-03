@@ -5,14 +5,14 @@ import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class SettingsRepositoryTest {
+class MultiplatformSettingsRepositoryTest {
     private lateinit var settings: MapSettings
     private lateinit var repository: SettingsRepository
 
     @BeforeTest
     fun setUp() {
         settings = MapSettings()
-        repository = SettingsRepository(settings)
+        repository = MultiplatformSettingsRepository(settings)
     }
 
     @Test
