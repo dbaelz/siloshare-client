@@ -9,13 +9,13 @@ import kotlinx.coroutines.launch
 
 class SettingsViewModel(
     private val settingsRepository: SettingsRepository
-) : BaseViewModel<State, Event, Event>() {
-    override val initialState: State
-        get() = State(
-            host = settingsRepository.getHostAddress(),
-            username = settingsRepository.getUsername(),
-            password = settingsRepository.getPassword()
-        )
+) : BaseViewModel<State, Event, Event>(
+    initialState = State(
+        host = settingsRepository.getHostAddress(),
+        username = settingsRepository.getUsername(),
+        password = settingsRepository.getPassword()
+    )
+) {
 
     init {
         viewModelScope.launch {

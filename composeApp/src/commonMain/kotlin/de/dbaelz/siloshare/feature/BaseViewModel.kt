@@ -6,9 +6,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 
-abstract class BaseViewModel<State, Event, InternalEvent: Event> : ViewModel() {
-    protected abstract val initialState: State
-
+abstract class BaseViewModel<State, Event, InternalEvent : Event>(
+    protected val initialState: State
+) : ViewModel() {
     private val _state: MutableStateFlow<State> by lazy { MutableStateFlow(initialState) }
     val state: StateFlow<State> = _state
 
