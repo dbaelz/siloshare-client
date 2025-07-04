@@ -6,13 +6,20 @@ import de.dbaelz.siloshare.navigation.Screen
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 
-class ActionDispatcher(
-    private val navController: NavHostController
-) {
-    private val _events = MutableSharedFlow<Action>(replay = 0, extraBufferCapacity = 1)
-    val events: SharedFlow<Action> = _events
 
-    fun dispatch(action: Action) {
+interface ActionDispatcher {
+    val events: SharedFlow<Action>
+
+    fun dispatch(action: Action)
+}
+
+class DefaultActionDispatcher(
+    private val navController: NavHostController
+) : ActionDispatcher {
+    private val _events = MutableSharedFlow<Action>(replay = 0, extraBufferCapacity = 1)
+    override val events: SharedFlow<Action> = _events
+
+    override fun dispatch(action: Action) {
         when (action) {
             is Action.ShowSettings -> {
                 navController.navigate(Screen.Settings.name)

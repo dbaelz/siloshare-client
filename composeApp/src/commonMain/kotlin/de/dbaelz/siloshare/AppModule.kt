@@ -11,7 +11,7 @@ import org.koin.dsl.module
 fun appModule(navHostController: NavHostController) = module {
     single<SettingsRepository> { MultiplatformSettingsRepository(Settings()) }
 
-    single { ActionDispatcher(navHostController) }
+    single<ActionDispatcher> { DefaultActionDispatcher(navHostController) }
 
     viewModelOf(::SettingsViewModel)
 }

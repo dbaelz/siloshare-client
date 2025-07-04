@@ -1,11 +1,15 @@
 package de.dbaelz.siloshare.feature.settings
 
 import app.cash.turbine.test
+import de.dbaelz.siloshare.ActionDispatcher
 import de.dbaelz.siloshare.feature.settings.SettingsRepository.Companion.DEFAULT_HOST
 import de.dbaelz.siloshare.feature.settings.SettingsRepository.Companion.DEFAULT_PASSWORD
 import de.dbaelz.siloshare.feature.settings.SettingsRepository.Companion.DEFAULT_USERNAME
 import de.dbaelz.siloshare.feature.settings.SettingsViewModelContract.Event
+import de.dbaelz.siloshare.navigation.Action
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -32,11 +36,20 @@ class TestSettingsRepository : SettingsRepository {
     }
 }
 
+class TestActionDispatcher : ActionDispatcher {
+    override val events: SharedFlow<Action> = MutableSharedFlow()
+
+    override fun dispatch(action: Action) {
+    }
+}
+
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
     @Test
     fun `initial state is loaded from repository`() = runTest {
-        val viewModel = SettingsViewModel(TestSettingsRepository())
+        val viewModel = SettingsViewModel(
+            TestSettingsRepository(), actionDispatcher = TestActionDispatcher()
+        )
 
         viewModel.state.test {
             val state = awaitItem()
@@ -49,13 +62,15 @@ class SettingsViewModelTest {
 
     @Test
     fun `update settings event updates repository and state`() = runTest {
-        val viewModel = SettingsViewModel(TestSettingsRepository())
+        val viewModel = SettingsViewModel(
+            TestSettingsRepository(), actionDispatcher = TestActionDispatcher()
+        )
 
         val newHost = "http://newhost.com"
         val newUsername = "newUser"
         val newPassword = "newPassword"
 
-        viewModel.sendEvent(Event.UpdateSettings(newHost, newUsername, newPassword))
+        viewModel.sendEvent(Event.OnValuesChanged(newHost, newUsername, newPassword))
 
         viewModel.state.test {
             val state = awaitItem()
