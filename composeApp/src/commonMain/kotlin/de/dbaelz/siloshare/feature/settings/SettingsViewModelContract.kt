@@ -8,7 +8,7 @@ object SettingsViewModelContract {
     )
 
     sealed interface Event {
-        data class UpdateSettings(
+        data class OnValuesChanged(
             val host: String,
             val username: String,
             val password: String

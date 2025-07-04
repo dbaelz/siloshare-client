@@ -5,7 +5,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
@@ -16,27 +17,41 @@ fun SettingsScreen() {
 
     val state = viewModel.state.collectAsState().value
 
-    var host by remember { mutableStateOf(state.host) }
-    var username by remember { mutableStateOf(state.username) }
-    var password by remember { mutableStateOf(state.password) }
-
     Column(modifier = Modifier.padding(16.dp)) {
         SettingsTextField(
-            value = host,
-            onValueChange = { host = it },
+            value = state.host,
+            onValueChange = {
+                viewModel.sendEvent(
+                    SettingsViewModelContract.Event.OnValuesChanged(
+                        host = it, username = state.username, password = state.password
+                    )
+                )
+            },
             label = "Host Address"
         )
 
         SettingsTextField(
-            value = username,
-            onValueChange = { username = it },
+            value = state.username,
+            onValueChange = {
+                viewModel.sendEvent(
+                    SettingsViewModelContract.Event.OnValuesChanged(
+                        host = state.host, username = it, password = state.password
+                    )
+                )
+            },
             label = "Basic Auth username"
         )
 
 
         SettingsTextField(
-            value = password,
-            onValueChange = { password = it },
+            value = state.password,
+            onValueChange = {
+                viewModel.sendEvent(
+                    SettingsViewModelContract.Event.OnValuesChanged(
+                        host = state.host, username = state.username, password = it
+                    )
+                )
+            },
             label = "Basic Auth password"
         )
     }

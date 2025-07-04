@@ -3,7 +3,7 @@ package de.dbaelz.siloshare
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -18,17 +18,20 @@ import de.dbaelz.siloshare.navigation.Screen
 import de.dbaelz.siloshare.theme.AppTheme
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinApplication
+import org.koin.compose.getKoin
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 @Preview
 fun App() {
-    KoinApplication(
-        application = { modules(appModule) }
-    ) {
+    val navController: NavHostController = rememberNavController()
 
+    KoinApplication(
+        application = { modules(appModule(navController)) }
+    ) {
         AppTheme {
-            val navController: NavHostController = rememberNavController()
+            val actionDispatcher: ActionDispatcher = getKoin().get()
+
             val backStackEntry by navController.currentBackStackEntryAsState()
             val currentScreen = Screen.valueOf(
                 backStackEntry?.destination?.route ?: Screen.Notes.name
@@ -40,17 +43,26 @@ fun App() {
                     TopAppBar(
                         title = { Text(currentScreen.title) },
                         navigationIcon = {
-                            // TODO: Implement navigation icon if needed
-
-                        },
-                        actions = {
-                            if (currentScreen == Screen.Notes) {
+                            if (currentScreen != Screen.Notes) {
                                 IconButton(onClick = {
-                                    navController.navigate(Screen.Settings.name)
+                                    navController.navigateUp()
                                 }) {
                                     Icon(
-                                        imageVector = Icons.Default.Settings,
-                                        contentDescription = "Settings",
+                                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                                        contentDescription = "Back",
+                                        tint = MaterialTheme.colorScheme.onPrimary
+                                    )
+                                }
+                            }
+                        },
+                        actions = {
+                            currentScreen.actions.forEach { action ->
+                                IconButton(onClick = {
+                                    actionDispatcher.dispatch(action)
+                                }) {
+                                    Icon(
+                                        imageVector = action.icon,
+                                        contentDescription = action.description,
                                         tint = MaterialTheme.colorScheme.onPrimary
                                     )
                                 }
