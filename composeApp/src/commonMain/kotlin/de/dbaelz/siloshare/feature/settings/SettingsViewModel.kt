@@ -3,6 +3,7 @@ package de.dbaelz.siloshare.feature.settings
 import androidx.lifecycle.viewModelScope
 import de.dbaelz.siloshare.ActionDispatcher
 import de.dbaelz.siloshare.feature.BaseViewModel
+import de.dbaelz.siloshare.feature.settings.SettingsViewModel.InternalEvent
 import de.dbaelz.siloshare.feature.settings.SettingsViewModelContract.Event
 import de.dbaelz.siloshare.feature.settings.SettingsViewModelContract.State
 import de.dbaelz.siloshare.navigation.Action
@@ -13,7 +14,7 @@ import kotlinx.coroutines.launch
 class SettingsViewModel(
     private val settingsRepository: SettingsRepository,
     private val actionDispatcher: ActionDispatcher
-) : BaseViewModel<State, Event, Event>(
+) : BaseViewModel<State, Event, InternalEvent>(
     initialState = State(
         host = settingsRepository.getHostAddress(),
         port = settingsRepository.getPort(),

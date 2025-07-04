@@ -8,6 +8,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -17,7 +18,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun SettingsScreen() {
     val viewModel: SettingsViewModel = koinViewModel()
 
-    val state = viewModel.state.collectAsState().value
+    val state by viewModel.state.collectAsState()
 
     Column(modifier = Modifier.padding(16.dp)) {
         SettingsTextField(

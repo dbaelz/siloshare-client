@@ -17,7 +17,7 @@ interface SettingsRepository {
     fun getPassword(): String
 
     companion object {
-        const val DEFAULT_HOST = "http://localhost"
+        const val DEFAULT_HOST = "localhost"
         const val DEFAULT_PORT = 8080
         const val DEFAULT_USERNAME = "user"
         const val DEFAULT_PASSWORD = "password"

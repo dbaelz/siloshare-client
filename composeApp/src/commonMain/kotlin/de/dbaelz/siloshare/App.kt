@@ -13,6 +13,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import de.dbaelz.siloshare.feature.notes.NotesScreen
 import de.dbaelz.siloshare.feature.settings.SettingsScreen
 import de.dbaelz.siloshare.navigation.Screen
 import de.dbaelz.siloshare.theme.AppTheme
@@ -84,7 +85,7 @@ fun App() {
                     modifier = Modifier.fillMaxSize().padding(paddingValues)
                 ) {
                     composable(route = Screen.Notes.name) {
-                        // TODO: Implement NotesScreen
+                        NotesScreen()
                     }
 
                     composable(route = Screen.Settings.name) {
