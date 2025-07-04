@@ -2,6 +2,10 @@
 The name siloshare stands for `simple local share`. This is a Kotlin Multiplatform client for the [siloshare server](https://github.com/dbaelz/siloshare).
 The project targets Android, iOS, Web, Desktop. It uses Compose Multiplatform to share the UI across all platforms.
 
+## Features
+- Fetch notes from the siloshare server and display them in a list
+- Settings screen to configure the server URL and basic authentication
+
 ## Project structure
 * `/composeApp` is for code that will be shared across your Compose Multiplatform applications.
   It contains several subfolders:
