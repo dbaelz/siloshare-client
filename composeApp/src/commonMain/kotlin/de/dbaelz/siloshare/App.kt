@@ -16,7 +16,7 @@ import androidx.navigation.compose.rememberNavController
 import de.dbaelz.siloshare.feature.notes.NotesScreen
 import de.dbaelz.siloshare.feature.settings.SettingsScreen
 import de.dbaelz.siloshare.navigation.Screen
-import de.dbaelz.siloshare.theme.AppTheme
+import de.dbaelz.siloshare.ui.theme.AppTheme
 import io.github.aakira.napier.DebugAntilog
 import io.github.aakira.napier.Napier
 import org.jetbrains.compose.ui.tooling.preview.Preview

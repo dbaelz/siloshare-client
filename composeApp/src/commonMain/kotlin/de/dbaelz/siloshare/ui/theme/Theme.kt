@@ -1,4 +1,4 @@
-package de.dbaelz.siloshare.theme
+package de.dbaelz.siloshare.ui.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
