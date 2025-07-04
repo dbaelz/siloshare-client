@@ -1,12 +1,14 @@
 package de.dbaelz.siloshare.network
 
 import de.dbaelz.siloshare.repository.SettingsRepository
+import io.github.aakira.napier.Napier
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.providers.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.logging.*
 import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.serialization.json.Json
@@ -17,6 +19,15 @@ fun createHttpClient(
     engine: HttpClientEngine? = null
 ): HttpClient {
     val clientConfig: HttpClientConfig<*>.() -> Unit = {
+        install(Logging) {
+            logger = object : Logger {
+                override fun log(message: String) {
+                    Napier.d(message = message, tag = "HttpClient")
+                }
+            }
+            level = LogLevel.ALL
+        }
+
         install(Auth) {
             basic {
                 credentials {
