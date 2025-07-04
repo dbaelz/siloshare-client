@@ -7,6 +7,7 @@ import de.dbaelz.siloshare.feature.settings.SettingsRepository.Companion.DEFAULT
 import de.dbaelz.siloshare.feature.settings.SettingsRepository.Companion.DEFAULT_USERNAME
 import de.dbaelz.siloshare.feature.settings.SettingsViewModelContract.Event
 import de.dbaelz.siloshare.navigation.Action
+import io.ktor.http.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -16,15 +17,21 @@ import kotlin.test.assertEquals
 
 class TestSettingsRepository : SettingsRepository {
     private var testHost = DEFAULT_HOST
+    private var testPort = DEFAULT_PORT
     private var testUsername = DEFAULT_USERNAME
     private var testPassword = DEFAULT_PASSWORD
 
     override fun getHostAddress() = testHost
+    override fun getPort(): Int = testPort
     override fun getUsername() = testUsername
     override fun getPassword() = testPassword
 
     override fun setHostAddress(host: String) {
         this.testHost = host
+    }
+
+    override fun setPort(port: Int) {
+        this.testPort = port
     }
 
     override fun setUsername(username: String) {
@@ -67,10 +74,11 @@ class SettingsViewModelTest {
         )
 
         val newHost = "http://newhost.com"
+        val newPort = 1234
         val newUsername = "newUser"
         val newPassword = "newPassword"
 
-        viewModel.sendEvent(Event.OnValuesChanged(newHost, newUsername, newPassword))
+        viewModel.sendEvent(Event.OnValuesChanged(newHost, newPort, newUsername, newPassword))
 
         viewModel.state.test {
             val state = awaitItem()

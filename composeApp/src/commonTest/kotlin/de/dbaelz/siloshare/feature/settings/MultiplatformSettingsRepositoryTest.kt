@@ -25,6 +25,15 @@ class MultiplatformSettingsRepositoryTest {
     }
 
     @Test
+    fun testSetAndGetPort() {
+        val port = 80
+
+        repository.setPort(80)
+
+        assertEquals(port, repository.getPort())
+    }
+
+    @Test
     fun testSetAndGetUsername() {
         val username = "user123"
 

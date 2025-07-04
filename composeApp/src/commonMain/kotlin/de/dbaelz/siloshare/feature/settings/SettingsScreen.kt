@@ -3,11 +3,13 @@ package de.dbaelz.siloshare.feature.settings
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -23,7 +25,10 @@ fun SettingsScreen() {
             onValueChange = {
                 viewModel.sendEvent(
                     SettingsViewModelContract.Event.OnValuesChanged(
-                        host = it, username = state.username, password = state.password
+                        host = it,
+                        port = state.port,
+                        username = state.username,
+                        password = state.password
                     )
                 )
             },
@@ -31,11 +36,32 @@ fun SettingsScreen() {
         )
 
         SettingsTextField(
+            value = state.port.toString(),
+            onValueChange = { value ->
+                value.toIntOrNull()?.takeIf { it > 0 }?.let { port ->
+                    viewModel.sendEvent(
+                        SettingsViewModelContract.Event.OnValuesChanged(
+                            host = state.host,
+                            port = port,
+                            username = state.username,
+                            password = state.password
+                        )
+                    )
+                }
+            },
+            label = "Port",
+            keyboardType = KeyboardType.Number
+        )
+
+        SettingsTextField(
             value = state.username,
             onValueChange = {
                 viewModel.sendEvent(
                     SettingsViewModelContract.Event.OnValuesChanged(
-                        host = state.host, username = it, password = state.password
+                        host = state.host,
+                        port = state.port,
+                        username = it,
+                        password = state.password
                     )
                 )
             },
@@ -48,7 +74,10 @@ fun SettingsScreen() {
             onValueChange = {
                 viewModel.sendEvent(
                     SettingsViewModelContract.Event.OnValuesChanged(
-                        host = state.host, username = state.username, password = it
+                        host = state.host,
+                        port = state.port,
+                        username = state.username,
+                        password = it
                     )
                 )
             },
@@ -58,11 +87,17 @@ fun SettingsScreen() {
 }
 
 @Composable
-fun SettingsTextField(value: String, onValueChange: (String) -> Unit, label: String) {
+fun SettingsTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    keyboardType: KeyboardType = KeyboardType.Text
+) {
     OutlinedTextField(
         value = value,
         onValueChange = onValueChange,
         label = { Text(label) },
-        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
+        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+        keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
     )
 }

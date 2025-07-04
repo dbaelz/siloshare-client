@@ -15,6 +15,7 @@ class SettingsViewModel(
 ) : BaseViewModel<State, Event, Event>(
     initialState = State(
         host = settingsRepository.getHostAddress(),
+        port = settingsRepository.getPort(),
         username = settingsRepository.getUsername(),
         password = settingsRepository.getPassword()
     )
@@ -31,6 +32,7 @@ class SettingsViewModel(
                     sendEvent(
                         InternalEvent.UpdateSettings(
                             host = state.value.host,
+                            port = state.value.port,
                             username = state.value.username,
                             password = state.value.password
                         )
@@ -44,6 +46,7 @@ class SettingsViewModel(
         return when (event) {
             is InternalEvent.UpdateSettings -> {
                 settingsRepository.setHostAddress(event.host)
+                settingsRepository.setPort(event.port)
                 settingsRepository.setUsername(event.username)
                 settingsRepository.setPassword(event.password)
 
@@ -53,6 +56,7 @@ class SettingsViewModel(
             is Event.OnValuesChanged -> {
                 state.copy(
                     host = event.host,
+                    port = event.port,
                     username = event.username,
                     password = event.password
                 )
@@ -63,6 +67,7 @@ class SettingsViewModel(
     sealed interface InternalEvent : Event {
         data class UpdateSettings(
             val host: String,
+            val port: Int,
             val username: String,
             val password: String
         ) : InternalEvent
