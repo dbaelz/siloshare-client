@@ -91,7 +91,7 @@ fun SettingsScreen() {
         Spacer(Modifier.height(8.dp))
 
         Text(
-            text = "Platform: ${getPlatform()}",
+            text = "Platform: ${getPlatform().name}",
             modifier = Modifier.fillMaxWidth()
         )
     }

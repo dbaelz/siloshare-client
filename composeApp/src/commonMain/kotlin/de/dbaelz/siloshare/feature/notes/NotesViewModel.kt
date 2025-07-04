@@ -44,7 +44,7 @@ class NotesViewModel(
     private fun getNotes() {
         viewModelScope.launch {
             try {
-                val notes = notesRepository.getNotes()
+                val notes = notesRepository.getNotes().sortedByDescending { it.timestamp }
                 sendEvent(InternalEvent.GetNodesSuccess(notes))
             } catch (exception: Exception) {
                 sendEvent(InternalEvent.GetNodesError(exception))
