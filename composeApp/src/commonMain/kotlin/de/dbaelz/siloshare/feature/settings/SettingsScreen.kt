@@ -8,15 +8,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import de.dbaelz.siloshare.feature.settings.SettingsViewModelContract.Event
-import de.dbaelz.siloshare.feature.settings.SettingsViewModelContract.State
-import org.jetbrains.compose.ui.tooling.preview.Preview
+import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun SettingsScreen(
-    state: State,
-    onEvent: (Event) -> Unit
-) {
+fun SettingsScreen() {
+    val viewModel: SettingsViewModel = koinViewModel()
+
+    val state = viewModel.state.collectAsState().value
+
     var host by remember { mutableStateOf(state.host) }
     var username by remember { mutableStateOf(state.username) }
     var password by remember { mutableStateOf(state.password) }
@@ -50,18 +49,5 @@ fun SettingsTextField(value: String, onValueChange: (String) -> Unit, label: Str
         onValueChange = onValueChange,
         label = { Text(label) },
         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp)
-    )
-}
-
-@Preview
-@Composable
-fun SettingsScreenPreview() {
-    SettingsScreen(
-        state = State(
-            host = "https://example.com",
-            username = "user",
-            password = "password"
-        ),
-        onEvent = {}
     )
 }
