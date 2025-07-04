@@ -1,16 +1,19 @@
 package de.dbaelz.siloshare.feature.notes
 
 import androidx.lifecycle.viewModelScope
+import de.dbaelz.siloshare.ActionDispatcher
 import de.dbaelz.siloshare.feature.BaseViewModel
 import de.dbaelz.siloshare.feature.notes.NotesViewModel.InternalEvent
 import de.dbaelz.siloshare.feature.notes.NotesViewModelContract.Event
 import de.dbaelz.siloshare.feature.notes.NotesViewModelContract.State
+import de.dbaelz.siloshare.navigation.Action
 import de.dbaelz.siloshare.repository.NotesRepository
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
 class NotesViewModel(
-    private val notesRepository: NotesRepository
+    private val notesRepository: NotesRepository,
+    private val actionDispatcher: ActionDispatcher
 ) : BaseViewModel<State, Event, InternalEvent>(
     initialState = State(isLoading = true)
 ) {
@@ -18,6 +21,14 @@ class NotesViewModel(
     init {
         viewModelScope.launch {
             event.map { reduce(state.value, it) }.collect { updateState(it) }
+        }
+
+        viewModelScope.launch {
+            actionDispatcher.events.collect { action ->
+                if (action is Action.NotesRefresh) {
+                    getNotes()
+                }
+            }
         }
 
         getNotes()

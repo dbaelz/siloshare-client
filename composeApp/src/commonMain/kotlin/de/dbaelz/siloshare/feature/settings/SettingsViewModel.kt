@@ -30,7 +30,7 @@ class SettingsViewModel(
 
         viewModelScope.launch {
             actionDispatcher.events.collect { action ->
-                if (action is Action.SaveSettings) {
+                if (action is Action.SettingsSave) {
                     sendEvent(
                         InternalEvent.UpdateSettings(
                             host = state.value.host,
