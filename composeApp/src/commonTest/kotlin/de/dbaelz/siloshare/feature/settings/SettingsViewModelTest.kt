@@ -2,11 +2,12 @@ package de.dbaelz.siloshare.feature.settings
 
 import app.cash.turbine.test
 import de.dbaelz.siloshare.ActionDispatcher
-import de.dbaelz.siloshare.feature.settings.SettingsRepository.Companion.DEFAULT_HOST
-import de.dbaelz.siloshare.feature.settings.SettingsRepository.Companion.DEFAULT_PASSWORD
-import de.dbaelz.siloshare.feature.settings.SettingsRepository.Companion.DEFAULT_USERNAME
+import de.dbaelz.siloshare.repository.SettingsRepository.Companion.DEFAULT_HOST
+import de.dbaelz.siloshare.repository.SettingsRepository.Companion.DEFAULT_PASSWORD
+import de.dbaelz.siloshare.repository.SettingsRepository.Companion.DEFAULT_USERNAME
 import de.dbaelz.siloshare.feature.settings.SettingsViewModelContract.Event
 import de.dbaelz.siloshare.navigation.Action
+import de.dbaelz.siloshare.repository.SettingsRepository
 import io.ktor.http.*
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow

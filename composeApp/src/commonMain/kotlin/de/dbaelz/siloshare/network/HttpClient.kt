@@ -1,6 +1,6 @@
 package de.dbaelz.siloshare.network
 
-import de.dbaelz.siloshare.feature.settings.SettingsRepository
+import de.dbaelz.siloshare.repository.SettingsRepository
 import io.ktor.client.*
 import io.ktor.client.engine.*
 import io.ktor.client.plugins.*

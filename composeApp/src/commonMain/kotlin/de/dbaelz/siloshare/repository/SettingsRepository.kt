@@ -1,10 +1,10 @@
-package de.dbaelz.siloshare.feature.settings
+package de.dbaelz.siloshare.repository
 
 import com.russhwolf.settings.Settings
-import de.dbaelz.siloshare.feature.settings.SettingsRepository.Companion.DEFAULT_HOST
-import de.dbaelz.siloshare.feature.settings.SettingsRepository.Companion.DEFAULT_PASSWORD
-import de.dbaelz.siloshare.feature.settings.SettingsRepository.Companion.DEFAULT_PORT
-import de.dbaelz.siloshare.feature.settings.SettingsRepository.Companion.DEFAULT_USERNAME
+import de.dbaelz.siloshare.repository.SettingsRepository.Companion.DEFAULT_HOST
+import de.dbaelz.siloshare.repository.SettingsRepository.Companion.DEFAULT_PASSWORD
+import de.dbaelz.siloshare.repository.SettingsRepository.Companion.DEFAULT_PORT
+import de.dbaelz.siloshare.repository.SettingsRepository.Companion.DEFAULT_USERNAME
 
 interface SettingsRepository {
     fun setHostAddress(host: String)

@@ -1,6 +1,8 @@
 package de.dbaelz.siloshare.feature.settings
 
 import com.russhwolf.settings.MapSettings
+import de.dbaelz.siloshare.repository.MultiplatformSettingsRepository
+import de.dbaelz.siloshare.repository.SettingsRepository
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals

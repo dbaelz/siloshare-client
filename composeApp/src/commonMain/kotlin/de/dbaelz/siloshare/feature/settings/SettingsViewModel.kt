@@ -6,6 +6,7 @@ import de.dbaelz.siloshare.feature.BaseViewModel
 import de.dbaelz.siloshare.feature.settings.SettingsViewModelContract.Event
 import de.dbaelz.siloshare.feature.settings.SettingsViewModelContract.State
 import de.dbaelz.siloshare.navigation.Action
+import de.dbaelz.siloshare.repository.SettingsRepository
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 
