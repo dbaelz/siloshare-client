@@ -16,6 +16,8 @@ import androidx.navigation.compose.rememberNavController
 import de.dbaelz.siloshare.feature.settings.SettingsScreen
 import de.dbaelz.siloshare.navigation.Screen
 import de.dbaelz.siloshare.theme.AppTheme
+import io.github.aakira.napier.DebugAntilog
+import io.github.aakira.napier.Napier
 import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.KoinApplication
 import org.koin.compose.getKoin
@@ -24,6 +26,7 @@ import org.koin.compose.getKoin
 @Composable
 @Preview
 fun App() {
+    Napier.base(DebugAntilog())
     val navController: NavHostController = rememberNavController()
 
     KoinApplication(
