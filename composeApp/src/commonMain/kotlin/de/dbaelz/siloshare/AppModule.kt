@@ -2,6 +2,7 @@ package de.dbaelz.siloshare
 
 import androidx.navigation.NavHostController
 import com.russhwolf.settings.Settings
+import de.dbaelz.siloshare.feature.addnote.AddNoteViewModel
 import de.dbaelz.siloshare.feature.notes.NotesViewModel
 import de.dbaelz.siloshare.feature.settings.SettingsViewModel
 import de.dbaelz.siloshare.network.createHttpClient
@@ -20,5 +21,6 @@ fun appModule(navHostController: NavHostController) = module {
     single<ActionDispatcher> { DefaultActionDispatcher(navHostController) }
 
     viewModelOf(::NotesViewModel)
+    viewModelOf(::AddNoteViewModel)
     viewModelOf(::SettingsViewModel)
 }

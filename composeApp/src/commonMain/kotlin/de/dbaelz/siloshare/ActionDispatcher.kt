@@ -25,7 +25,6 @@ class DefaultActionDispatcher(
             is Action.NotesShowSettings -> navController.navigate(Screen.Settings.name)
 
             is Action.NotesRefresh,
-            is Action.AddNoteSave,
             is Action.SettingsSave -> _events.tryEmit(action)
         }
     }

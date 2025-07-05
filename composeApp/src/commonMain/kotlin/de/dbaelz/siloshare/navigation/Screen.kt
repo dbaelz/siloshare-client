@@ -8,7 +8,7 @@ enum class Screen(val title: String, val actions: Set<Action> = emptySet()) {
 
     AddNote(
         title = "Add Note",
-        actions = setOf(Action.AddNoteSave)
+        actions = setOf()
     ),
     Settings(
         title = "Settings",

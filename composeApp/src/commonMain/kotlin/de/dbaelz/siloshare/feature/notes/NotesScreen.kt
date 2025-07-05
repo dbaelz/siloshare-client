@@ -1,6 +1,5 @@
 package de.dbaelz.siloshare.feature.notes
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -10,7 +9,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
@@ -18,6 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.dbaelz.siloshare.repository.NotesRepository
+import de.dbaelz.siloshare.ui.ErrorText
 import de.dbaelz.siloshare.ui.Loading
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
@@ -35,14 +34,13 @@ fun NotesScreen() {
 
     if (state.isLoading) {
         Loading()
-    } else if (state.message != null) {
-        Text(text = state.message ?: "An error occurred")
+    } else {
+        NotesContent(
+            message = state.message,
+            notes = state.notes
+        )
     }
 
-    NotesContent(
-        message = state.message,
-        notes = state.notes
-    )
 }
 
 @Composable
@@ -53,17 +51,7 @@ private fun NotesContent(
     LazyColumn {
         if (message != null) {
             stickyHeader {
-                Box(
-                    modifier = Modifier.fillMaxWidth()
-                        .background(MaterialTheme.colorScheme.errorContainer),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        text = message,
-                        color = MaterialTheme.colorScheme.onErrorContainer,
-                        modifier = Modifier.padding(4.dp)
-                    )
-                }
+                ErrorText(message)
             }
         }
 

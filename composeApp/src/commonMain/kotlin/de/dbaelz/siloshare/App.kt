@@ -13,8 +13,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import de.dbaelz.siloshare.feature.addnote.AddNoteScreen
 import de.dbaelz.siloshare.feature.notes.NotesScreen
 import de.dbaelz.siloshare.feature.settings.SettingsScreen
+import de.dbaelz.siloshare.navigation.Action
 import de.dbaelz.siloshare.navigation.Screen
 import de.dbaelz.siloshare.ui.theme.AppTheme
 import io.github.aakira.napier.DebugAntilog
@@ -89,7 +91,10 @@ fun App() {
                     }
 
                     composable(route = Screen.AddNote.name) {
-                        // TODO: Implement AddNoteScreen
+                        AddNoteScreen {
+                            navController.navigateUp()
+                            actionDispatcher.dispatch(Action.NotesRefresh)
+                        }
                     }
 
                     composable(route = Screen.Settings.name) {

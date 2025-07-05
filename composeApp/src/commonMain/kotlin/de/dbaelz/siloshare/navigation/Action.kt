@@ -14,7 +14,5 @@ sealed class Action(
     data object NotesRefresh : Action(Icons.Default.Refresh, "Refresh notes")
     data object NotesAdd : Action(Icons.Default.Add, "Add new note")
     data object NotesShowSettings : Action(Icons.Default.Settings, "Show settings screen")
-
-    data object AddNoteSave : Action(Icons.Default.Save, "Save note")
     data object SettingsSave : Action(Icons.Default.Save, "Save settings")
 }
