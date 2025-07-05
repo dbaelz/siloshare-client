@@ -21,11 +21,12 @@ class DefaultActionDispatcher(
 
     override fun dispatch(action: Action) {
         when (action) {
-            is Action.NotesShowSettings -> {
-                navController.navigate(Screen.Settings.name)
-            }
+            is Action.NotesAdd -> navController.navigate(Screen.AddNote.name)
+            is Action.NotesShowSettings -> navController.navigate(Screen.Settings.name)
 
-            is Action.NotesRefresh, is Action.SettingsSave -> _events.tryEmit(action)
+            is Action.NotesRefresh,
+            is Action.AddNoteSave,
+            is Action.SettingsSave -> _events.tryEmit(action)
         }
     }
 }

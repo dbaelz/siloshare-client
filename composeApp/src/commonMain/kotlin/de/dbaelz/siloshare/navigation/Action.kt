@@ -1,6 +1,7 @@
 package de.dbaelz.siloshare.navigation
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Settings
@@ -11,6 +12,9 @@ sealed class Action(
     val description: String
 ) {
     data object NotesRefresh : Action(Icons.Default.Refresh, "Refresh notes")
+    data object NotesAdd : Action(Icons.Default.Add, "Add new note")
     data object NotesShowSettings : Action(Icons.Default.Settings, "Show settings screen")
+
+    data object AddNoteSave : Action(Icons.Default.Save, "Save note")
     data object SettingsSave : Action(Icons.Default.Save, "Save settings")
 }

@@ -88,6 +88,10 @@ fun App() {
                         NotesScreen()
                     }
 
+                    composable(route = Screen.AddNote.name) {
+                        // TODO: Implement AddNoteScreen
+                    }
+
                     composable(route = Screen.Settings.name) {
                         SettingsScreen()
                     }
