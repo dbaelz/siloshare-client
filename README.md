@@ -17,6 +17,13 @@ The project targets Android, iOS, Web, Desktop. It uses Compose Multiplatform to
 * `/iosApp` contains iOS applications. Even if you’re sharing your UI with Compose Multiplatform, 
   you need this entry point for your iOS app. This is also where you should add SwiftUI code for your project.
 
+## Screenshots
+
+| Platform | Notes                                        | Add note                                             | Settings                                             |                                                          |
+|----------|----------------------------------------------|------------------------------------------------------|------------------------------------------------------|----------------------------------------------------------|
+| Android  | ![Android notes](screenshot/phone-notes.png) | ![Android add note](screenshot/phone-add-note.png)   | ![Android settings](screenshot/phone-settings.png)   | ![Android notes dark](screenshot/phone-notes-dark.png)   |
+| Desktop  | ![Desktop notes](screenshot/desktop-notes.png) | ![Desktop add note](screenshot/desktop-add-note.png) | ![Desktop settings](screenshot/desktop-settings.png) | ![Desktop notes dark](screenshot/desktop-notes-dark.png) |
+
 
 ## Contribution
 Feel free to contribute via pull requests.
