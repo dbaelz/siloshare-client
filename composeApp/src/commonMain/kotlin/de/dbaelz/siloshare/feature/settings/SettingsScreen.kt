@@ -109,6 +109,7 @@ fun SettingsTextField(
         onValueChange = onValueChange,
         label = { Text(label) },
         modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+        singleLine = true,
         keyboardOptions = KeyboardOptions(keyboardType = keyboardType)
     )
 }
