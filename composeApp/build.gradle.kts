@@ -128,8 +128,8 @@ android {
         applicationId = "de.dbaelz.siloshare"
         minSdk = libs.versions.android.minSdk.get().toInt()
         targetSdk = libs.versions.android.targetSdk.get().toInt()
-        versionCode = 1
-        versionName = "1.0"
+        versionCode = libs.versions.versionCode.get().toInt()
+        versionName = libs.versions.versionName.get()
     }
     packaging {
         resources {
@@ -158,7 +158,7 @@ compose.desktop {
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "de.dbaelz.siloshare"
-            packageVersion = "1.0.0"
+            packageVersion = libs.versions.versionName.get()
         }
     }
 }
