@@ -5,7 +5,8 @@ object SettingsViewModelContract {
         val host: String,
         val port: Int,
         val username: String,
-        val password: String
+        val password: String,
+        val isSaved: Boolean = false
     )
 
     sealed interface Event {

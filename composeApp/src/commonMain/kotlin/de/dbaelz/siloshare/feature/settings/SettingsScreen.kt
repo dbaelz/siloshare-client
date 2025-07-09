@@ -18,10 +18,15 @@ import de.dbaelz.siloshare.getPlatform
 import org.koin.compose.viewmodel.koinViewModel
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(onSettingsSaved: () -> Unit) {
     val viewModel: SettingsViewModel = koinViewModel()
 
     val state by viewModel.state.collectAsState()
+
+    if (state.isSaved) {
+        onSettingsSaved()
+        return
+    }
 
     Column(modifier = Modifier.padding(16.dp)) {
         SettingsTextField(

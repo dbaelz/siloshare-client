@@ -98,7 +98,9 @@ fun App() {
                     }
 
                     composable(route = Screen.Settings.name) {
-                        SettingsScreen()
+                        SettingsScreen {
+                            navController.navigateUp()
+                        }
                     }
                 }
             }

@@ -52,7 +52,7 @@ class SettingsViewModel(
                 settingsRepository.setUsername(event.username)
                 settingsRepository.setPassword(event.password)
 
-                state
+                state.copy(isSaved = true)
             }
 
             is Event.OnValuesChanged -> {
