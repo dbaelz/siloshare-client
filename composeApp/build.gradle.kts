@@ -159,18 +159,26 @@ compose.desktop {
     application {
         mainClass = "de.dbaelz.siloshare.MainKt"
 
+        val siloshareDescription = "Simple local share of notes on local network"
+
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "de.dbaelz.siloshare"
             packageVersion = libs.versions.versionName.get()
+            description = siloshareDescription
+            licenseFile = project.file("../LICENSE")
+
             macOS {
                 iconFile = project.file("icon/macos.icns")
+                bundleID = "de.dbaelz.siloshare"
             }
             windows {
                 iconFile = project.file("icon/windows.ico")
             }
             linux {
                 iconFile = project.file("icon/linux.png")
+                appCategory = "Utility"
+                description = siloshareDescription
             }
         }
     }
