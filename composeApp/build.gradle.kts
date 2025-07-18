@@ -163,6 +163,15 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "de.dbaelz.siloshare"
             packageVersion = libs.versions.versionName.get()
+            macOS {
+                iconFile = project.file("icon/macos.icns")
+            }
+            windows {
+                iconFile = project.file("icon/windows.ico")
+            }
+            linux {
+                iconFile = project.file("icon/linux.png")
+            }
         }
     }
 }
