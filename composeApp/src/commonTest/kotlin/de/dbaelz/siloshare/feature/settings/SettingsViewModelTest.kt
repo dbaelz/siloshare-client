@@ -2,63 +2,75 @@ package de.dbaelz.siloshare.feature.settings
 
 import app.cash.turbine.test
 import de.dbaelz.siloshare.ActionDispatcher
-import de.dbaelz.siloshare.feature.settings.SettingsViewModelContract.Event
 import de.dbaelz.siloshare.navigation.Action
-import de.dbaelz.siloshare.repository.SettingsRepository.Companion.DEFAULT_HOST
-import de.dbaelz.siloshare.repository.SettingsRepository.Companion.DEFAULT_PASSWORD
-import de.dbaelz.siloshare.repository.SettingsRepository.Companion.DEFAULT_USERNAME
 import de.dbaelz.siloshare.repository.TestSettingsRepository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
-class TestActionDispatcher : ActionDispatcher {
-    override val events: SharedFlow<Action> = MutableSharedFlow()
+
+class TestActionDispatcher() : ActionDispatcher {
+    private val _events = MutableSharedFlow<Action>(replay = 0, extraBufferCapacity = 1)
+    override val events: SharedFlow<Action>
+        get() = _events
 
     override fun dispatch(action: Action) {
+        _events.tryEmit(action)
     }
 }
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class SettingsViewModelTest {
     @Test
-    fun `initial state is loaded from repository`() = runTest {
-        val viewModel = SettingsViewModel(
-            TestSettingsRepository(), actionDispatcher = TestActionDispatcher()
+    fun onValuesChanged_updatesState() = runTest {
+        val repo = TestSettingsRepository()
+        val dispatcher = TestActionDispatcher()
+
+        val viewModel = SettingsViewModel(repo, dispatcher)
+
+        val host = "newhost"
+        val port = 1234
+        val username = "newuser"
+        val password = "newpass"
+
+        val event = SettingsViewModelContract.Event.OnValuesChanged(
+            host = host,
+            port = port,
+            username = username,
+            password = password
         )
+
+        viewModel.sendEvent(event)
 
         viewModel.state.test {
             val state = awaitItem()
-
-            assertEquals(DEFAULT_HOST, state.host)
-            assertEquals(DEFAULT_USERNAME, state.username)
-            assertEquals(DEFAULT_PASSWORD, state.password)
+            assertEquals(host, state.host)
+            assertEquals(port, state.port)
+            assertEquals(username, state.username)
+            assertEquals(password, state.password)
         }
     }
 
     @Test
-    fun `update settings event updates repository and state`() = runTest {
-        val viewModel = SettingsViewModel(
-            TestSettingsRepository(), actionDispatcher = TestActionDispatcher()
-        )
+    fun settingsSave_dispatch_updatesState() = runTest {
+        val repo = TestSettingsRepository()
+        val dispatcher = TestActionDispatcher()
 
-        val newHost = "http://newhost.com"
-        val newPort = 1234
-        val newUsername = "newUser"
-        val newPassword = "newPassword"
-
-        viewModel.sendEvent(Event.OnValuesChanged(newHost, newPort, newUsername, newPassword))
+        val viewModel = SettingsViewModel(repo, dispatcher)
 
         viewModel.state.test {
-            val state = awaitItem()
+            val initialState = awaitItem()
+            assertFalse(initialState.isSaved)
 
-            assertEquals(newHost, state.host)
-            assertEquals(newUsername, state.username)
-            assertEquals(newPassword, state.password)
+            delay(500)
+            dispatcher.dispatch(Action.SettingsSave)
+
+            val state = awaitItem()
+            assertTrue(state.isSaved)
         }
     }
 }
-
