@@ -101,6 +101,7 @@ kotlin {
             implementation(libs.turbine)
             implementation(libs.multiplatformSettingsTest)
             implementation(libs.koin.test)
+            implementation(libs.ktor.client.mock)
         }
 
         desktopMain.dependencies {

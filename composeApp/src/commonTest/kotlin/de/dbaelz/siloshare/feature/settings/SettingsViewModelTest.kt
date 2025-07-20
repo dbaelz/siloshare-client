@@ -2,47 +2,18 @@ package de.dbaelz.siloshare.feature.settings
 
 import app.cash.turbine.test
 import de.dbaelz.siloshare.ActionDispatcher
+import de.dbaelz.siloshare.feature.settings.SettingsViewModelContract.Event
+import de.dbaelz.siloshare.navigation.Action
 import de.dbaelz.siloshare.repository.SettingsRepository.Companion.DEFAULT_HOST
 import de.dbaelz.siloshare.repository.SettingsRepository.Companion.DEFAULT_PASSWORD
 import de.dbaelz.siloshare.repository.SettingsRepository.Companion.DEFAULT_USERNAME
-import de.dbaelz.siloshare.feature.settings.SettingsViewModelContract.Event
-import de.dbaelz.siloshare.navigation.Action
-import de.dbaelz.siloshare.repository.SettingsRepository
-import io.ktor.http.*
+import de.dbaelz.siloshare.repository.TestSettingsRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-
-class TestSettingsRepository : SettingsRepository {
-    private var testHost = DEFAULT_HOST
-    private var testPort = DEFAULT_PORT
-    private var testUsername = DEFAULT_USERNAME
-    private var testPassword = DEFAULT_PASSWORD
-
-    override fun getHostAddress() = testHost
-    override fun getPort(): Int = testPort
-    override fun getUsername() = testUsername
-    override fun getPassword() = testPassword
-
-    override fun setHostAddress(host: String) {
-        this.testHost = host
-    }
-
-    override fun setPort(port: Int) {
-        this.testPort = port
-    }
-
-    override fun setUsername(username: String) {
-        this.testUsername = username
-    }
-
-    override fun setPassword(password: String) {
-        this.testPassword = password
-    }
-}
 
 class TestActionDispatcher : ActionDispatcher {
     override val events: SharedFlow<Action> = MutableSharedFlow()
