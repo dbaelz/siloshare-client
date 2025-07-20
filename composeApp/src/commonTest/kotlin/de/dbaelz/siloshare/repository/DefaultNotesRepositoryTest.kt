@@ -10,7 +10,7 @@ import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class NotesRepositoryTest {
+class DefaultNotesRepositoryTest {
     @Test
     fun getNotes_returnsNotesList() = runTest {
         val notes = listOf(
@@ -26,7 +26,7 @@ class NotesRepositoryTest {
         }
         val client = createHttpClient(settingsRepository = TestSettingsRepository(), engine = mockEngine)
 
-        val repo = NotesRepository(client)
+        val repo = DefaultNotesRepository(client)
         val result = repo.getNotes()
 
         assertEquals(notes, result)
@@ -47,7 +47,7 @@ class NotesRepositoryTest {
         }
         val client = createHttpClient(settingsRepository = TestSettingsRepository(), engine = mockEngine)
 
-        val repo = NotesRepository(client)
+        val repo = DefaultNotesRepository(client)
         val result = repo.addNote("New note")
 
         assertEquals(expected.id, result)

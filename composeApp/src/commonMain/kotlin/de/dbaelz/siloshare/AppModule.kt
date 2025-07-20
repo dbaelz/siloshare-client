@@ -6,6 +6,7 @@ import de.dbaelz.siloshare.feature.addnote.AddNoteViewModel
 import de.dbaelz.siloshare.feature.notes.NotesViewModel
 import de.dbaelz.siloshare.feature.settings.SettingsViewModel
 import de.dbaelz.siloshare.network.createHttpClient
+import de.dbaelz.siloshare.repository.DefaultNotesRepository
 import de.dbaelz.siloshare.repository.MultiplatformSettingsRepository
 import de.dbaelz.siloshare.repository.NotesRepository
 import de.dbaelz.siloshare.repository.SettingsRepository
@@ -16,7 +17,7 @@ fun appModule(navHostController: NavHostController) = module {
     single<SettingsRepository> { MultiplatformSettingsRepository(Settings()) }
     single { createHttpClient(settingsRepository = get()) }
 
-    single { NotesRepository(get()) }
+    single<NotesRepository> { DefaultNotesRepository(get()) }
 
     single<ActionDispatcher> { DefaultActionDispatcher(navHostController) }
 
