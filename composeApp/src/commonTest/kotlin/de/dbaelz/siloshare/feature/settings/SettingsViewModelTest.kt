@@ -2,6 +2,7 @@ package de.dbaelz.siloshare.feature.settings
 
 import app.cash.turbine.test
 import de.dbaelz.siloshare.ActionDispatcher
+import de.dbaelz.siloshare.TestActionDispatcher
 import de.dbaelz.siloshare.navigation.Action
 import de.dbaelz.siloshare.repository.TestSettingsRepository
 import kotlinx.coroutines.delay
@@ -13,22 +14,11 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-
-class TestActionDispatcher() : ActionDispatcher {
-    private val _events = MutableSharedFlow<Action>(replay = 0, extraBufferCapacity = 1)
-    override val events: SharedFlow<Action>
-        get() = _events
-
-    override fun dispatch(action: Action) {
-        _events.tryEmit(action)
-    }
-}
-
 class SettingsViewModelTest {
     @Test
     fun onValuesChanged_updatesState() = runTest {
         val repo = TestSettingsRepository()
-        val dispatcher = TestActionDispatcher()
+        val dispatcher =    TestActionDispatcher()
 
         val viewModel = SettingsViewModel(repo, dispatcher)
 
