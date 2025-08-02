@@ -1,13 +1,10 @@
 package de.dbaelz.siloshare.feature.settings
 
 import app.cash.turbine.test
-import de.dbaelz.siloshare.ActionDispatcher
 import de.dbaelz.siloshare.TestActionDispatcher
 import de.dbaelz.siloshare.navigation.Action
 import de.dbaelz.siloshare.repository.TestSettingsRepository
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -34,14 +31,24 @@ class SettingsViewModelTest {
             password = password
         )
 
-        viewModel.sendEvent(event)
-
         viewModel.state.test {
+            val initialState = awaitItem()
+            assertEquals(repo.getHostAddress(), initialState.host)
+            assertEquals(repo.getPort(), initialState.port)
+            assertEquals(repo.getUsername(), initialState.username)
+            assertEquals(repo.getPassword(), initialState.password)
+
+            delay(200)
+
+            viewModel.sendEvent(event)
+
             val state = awaitItem()
             assertEquals(host, state.host)
             assertEquals(port, state.port)
             assertEquals(username, state.username)
             assertEquals(password, state.password)
+
+            ensureAllEventsConsumed()
         }
     }
 
