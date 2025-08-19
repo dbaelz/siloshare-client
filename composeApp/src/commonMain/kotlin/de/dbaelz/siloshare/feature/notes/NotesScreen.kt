@@ -5,6 +5,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -37,7 +38,8 @@ fun NotesScreen() {
     } else {
         NotesContent(
             message = state.message,
-            notes = state.notes
+            notes = state.notes,
+            onDeleteClick = { viewModel.sendEvent(NotesViewModelContract.Event.Delete(it)) }
         )
     }
 
@@ -46,7 +48,8 @@ fun NotesScreen() {
 @Composable
 private fun NotesContent(
     message: String? = null,
-    notes: List<NotesRepository.Note>
+    notes: List<NotesRepository.Note>,
+    onDeleteClick: (id: String) -> Unit
 ) {
     LazyColumn {
         if (message != null) {
@@ -56,14 +59,17 @@ private fun NotesContent(
         }
 
         items(notes) { note ->
-            NoteCard(note = note)
+            NoteCard(note = note, onDeleteClick = onDeleteClick)
         }
     }
 }
 
 @OptIn(FormatStringsInDatetimeFormats::class)
 @Composable
-private fun NoteCard(note: NotesRepository.Note) {
+private fun NoteCard(
+    note: NotesRepository.Note,
+    onDeleteClick: (String) -> Unit
+) {
     val clipboardManager = LocalClipboardManager.current
 
     Card(
@@ -98,15 +104,24 @@ private fun NoteCard(note: NotesRepository.Note) {
 
                 Spacer(modifier = Modifier.height(8.dp))
 
-                Button(
-                    onClick = { clipboardManager.setText(AnnotatedString(note.text)) },
-                    shape = MaterialTheme.shapes.medium
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(text = "Copy", fontSize = 16.sp)
+                    Button(
+                        onClick = { clipboardManager.setText(AnnotatedString(note.text)) },
+                        shape = MaterialTheme.shapes.medium
+                    ) {
+                        Text(text = "Copy", fontSize = 16.sp)
 
-                    Spacer(modifier = Modifier.width(8.dp))
+                        Spacer(modifier = Modifier.width(8.dp))
 
-                    Icon(Icons.Default.ContentCopy, contentDescription = "Copy")
+                        Icon(Icons.Default.ContentCopy, contentDescription = "Copy")
+                    }
+
+                    IconButton(onClick = { onDeleteClick(note.id) }) {
+                        Icon(Icons.Default.Delete, contentDescription = "Delete")
+                    }
                 }
             }
         }
