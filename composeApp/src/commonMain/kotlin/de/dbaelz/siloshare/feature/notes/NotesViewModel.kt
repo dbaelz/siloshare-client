@@ -36,14 +36,14 @@ class NotesViewModel(
 
     private fun reduce(state: State, event: Event): State {
         return when (event) {
-            is InternalEvent.GetNodesSuccess -> {
+            is InternalEvent.GetNotesSuccess -> {
                 State(
                     notes = event.notes,
                     isLoading = false
                 )
             }
 
-            is InternalEvent.GetNodesError -> {
+            is InternalEvent.GetNotesError -> {
                 state.copy(
                     isLoading = false,
                     message = event.error.toString()
@@ -56,16 +56,16 @@ class NotesViewModel(
         viewModelScope.launch {
             try {
                 val notes = notesRepository.getNotes().sortedByDescending { it.timestamp }
-                sendEvent(InternalEvent.GetNodesSuccess(notes))
+                sendEvent(InternalEvent.GetNotesSuccess(notes))
             } catch (exception: Exception) {
-                sendEvent(InternalEvent.GetNodesError(exception))
+                sendEvent(InternalEvent.GetNotesError(exception))
             }
         }
     }
 
     sealed interface InternalEvent : Event {
-        data class GetNodesSuccess(val notes: List<NotesRepository.Note>) : InternalEvent
-        data class GetNodesError(val error: Throwable) : InternalEvent
+        data class GetNotesSuccess(val notes: List<NotesRepository.Note>) : InternalEvent
+        data class GetNotesError(val error: Throwable) : InternalEvent
     }
 }
 

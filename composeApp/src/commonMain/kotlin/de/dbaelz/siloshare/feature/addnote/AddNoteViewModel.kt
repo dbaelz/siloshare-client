@@ -23,11 +23,11 @@ class AddNoteViewModel(
 
     private fun reduce(state: State, event: Event): State {
         return when (event) {
-            is InternalEvent.AddNodeSuccess -> {
+            is InternalEvent.AddNoteSuccess -> {
                 state.copy(isSuccess = true, isLoading = false, message = null)
             }
 
-            is InternalEvent.AddNodeError -> {
+            is InternalEvent.AddNoteError -> {
                 state.copy(
                     isLoading = false,
                     message = event.error.toString()
@@ -45,16 +45,16 @@ class AddNoteViewModel(
         viewModelScope.launch {
             try {
                 val newNote = notesRepository.addNote(text)
-                sendEvent(InternalEvent.AddNodeSuccess(newNote))
+                sendEvent(InternalEvent.AddNoteSuccess(newNote))
             } catch (exception: Exception) {
-                sendEvent(InternalEvent.AddNodeError(exception))
+                sendEvent(InternalEvent.AddNoteError(exception))
             }
         }
     }
 
     sealed interface InternalEvent : Event {
-        data class AddNodeSuccess(val note: String) : InternalEvent
-        data class AddNodeError(val error: Throwable) : InternalEvent
+        data class AddNoteSuccess(val note: String) : InternalEvent
+        data class AddNoteError(val error: Throwable) : InternalEvent
     }
 }
 
