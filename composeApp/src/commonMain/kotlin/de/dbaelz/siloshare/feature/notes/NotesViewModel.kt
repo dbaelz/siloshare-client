@@ -58,11 +58,6 @@ class NotesViewModel(
             is InternalEvent.DeleteNoteError -> {
                 state.copy(isLoading =  false, message = "Error deleting note ${event.id}")
             }
-
-            is InternalEvent.DeleteNoteSuccess -> {
-                state.copy(isLoading =  false, message = "Note ${event.id} deleted")
-            }
-
         }
     }
 
@@ -80,8 +75,11 @@ class NotesViewModel(
     private fun deleteNote(id: String) {
         viewModelScope.launch {
             try {
-                notesRepository.deleteNote(id)
-                sendEvent(InternalEvent.DeleteNoteSuccess(id))
+                if (notesRepository.deleteNote(id)) {
+                    getNotes()
+                } else {
+                    sendEvent(InternalEvent.DeleteNoteError(id))
+                }
             } catch (exception: Exception) {
                 sendEvent(InternalEvent.DeleteNoteError(id))
             }
@@ -92,7 +90,6 @@ class NotesViewModel(
         data class GetNotesSuccess(val notes: List<NotesRepository.Note>) : InternalEvent
         data class GetNotesError(val error: Throwable) : InternalEvent
 
-        data class DeleteNoteSuccess(val id: String) : InternalEvent
         data class DeleteNoteError(val id: String) : InternalEvent
     }
 }
