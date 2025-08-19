@@ -10,7 +10,7 @@ object NotesViewModelContract {
     )
 
     sealed interface Event {
-
+        data class Delete(val id: String) : Event
     }
 }
 
