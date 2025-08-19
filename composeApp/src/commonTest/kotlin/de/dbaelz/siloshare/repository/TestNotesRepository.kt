@@ -10,4 +10,8 @@ class TestNotesRepository : NotesRepository {
         )
 
     override suspend fun addNote(text: String): String = "1"
+
+    override suspend fun deleteNote(id: String): Boolean {
+        return true
+    }
 }

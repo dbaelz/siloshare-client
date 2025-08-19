@@ -52,4 +52,40 @@ class DefaultNotesRepositoryTest {
 
         assertEquals(expected.id, result)
     }
+
+    @Test
+    fun deleteNote_returnsTrueOnSuccess() = runTest {
+        val mockEngine = MockEngine { request ->
+            assertEquals(HttpMethod.Delete, request.method)
+            respond(
+                content = "",
+                status = HttpStatusCode.NoContent,
+                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+            )
+        }
+
+        val client = createHttpClient(settingsRepository = TestSettingsRepository(), engine = mockEngine)
+
+        val repo = DefaultNotesRepository(client)
+        val result = repo.deleteNote("1")
+        assertEquals(true, result)
+    }
+
+    @Test
+    fun deleteNote_returnsFalseOnFailure() = runTest {
+        val mockEngine = MockEngine { request ->
+            assertEquals(HttpMethod.Delete, request.method)
+            respond(
+                content = "",
+                status = HttpStatusCode.NotFound,
+                headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+            )
+        }
+
+        val client = createHttpClient(settingsRepository = TestSettingsRepository(), engine = mockEngine)
+
+        val repo = DefaultNotesRepository(client)
+        val result = repo.deleteNote("nonexistent")
+        assertEquals(false, result)
+    }
 }

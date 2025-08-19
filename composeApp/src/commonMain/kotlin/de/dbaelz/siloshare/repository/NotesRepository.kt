@@ -11,6 +11,7 @@ import kotlinx.serialization.Serializable
 interface NotesRepository {
     suspend fun getNotes(): List<Note>
     suspend fun addNote(text: String): String
+    suspend fun deleteNote(id: String): Boolean
 
     @Serializable
     data class Note(val id: String, val timestamp: Instant, val text: String)
@@ -29,6 +30,10 @@ class DefaultNotesRepository(private val httpClient: HttpClient) : NotesReposito
             contentType(ContentType.Application.Json)
             setBody(NotesRepository.AddNote(text))
         }.body()
+    }
+
+    override suspend fun deleteNote(id: String): Boolean {
+        return httpClient.delete("$NOTES_ENDPOINT/$id").status == HttpStatusCode.NoContent
     }
 
     private companion object {
