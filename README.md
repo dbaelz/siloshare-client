@@ -7,6 +7,7 @@ The app is available on the [Google Play Store](https://play.google.com/store/ap
 
 ## Features
 - Fetch notes from the siloshare server and display them in a list
+- Delete existing note on the server
 - Settings screen to configure the server URL and basic authentication
 
 ## Project structure
