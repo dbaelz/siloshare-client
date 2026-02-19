@@ -8,9 +8,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.ClipEntry
-import androidx.compose.ui.platform.Clipboard
-import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
@@ -19,7 +16,6 @@ import androidx.compose.ui.unit.sp
 import de.dbaelz.siloshare.repository.NotesRepository
 import de.dbaelz.siloshare.ui.ErrorText
 import de.dbaelz.siloshare.ui.Loading
-import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
@@ -144,7 +140,6 @@ private fun NoteCard(
     onRevertChecklist: (noteId: String) -> Unit
 ) {
     val clipboardManager = LocalClipboardManager.current
-    val coroutineScope = rememberCoroutineScope()
 
     var checklistExpanded by remember { mutableStateOf(false) }
     var newItemText by remember { mutableStateOf("") }
@@ -179,25 +174,28 @@ private fun NoteCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                note.checklist?.items?.let { itemsList ->
-                    if (itemsList.isNotEmpty()) {
-                        Spacer(modifier = Modifier.height(8.dp))
+                val itemsList = note.checklist?.items ?: emptyList()
+                val hasNonBlankItems = note.checklist?.items?.any { it.text.isNotBlank() } ?: false
 
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                        ) {
-                            Text(text = "Checklist", fontWeight = FontWeight.Bold)
-                            IconButton(onClick = { checklistExpanded = !checklistExpanded }) {
-                                Icon(
-                                    imageVector = if (checklistExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                    contentDescription = if (checklistExpanded) "Collapse checklist" else "Expand checklist"
-                                )
-                            }
+                if (itemsList.isNotEmpty() || checklistExpanded) {
+                    if (itemsList.isNotEmpty()) Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(text = "Checklist", fontWeight = FontWeight.Bold)
+                        IconButton(onClick = { checklistExpanded = !checklistExpanded }) {
+                            Icon(
+                                imageVector = if (checklistExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                contentDescription = if (checklistExpanded) "Collapse checklist" else "Expand checklist"
+                            )
                         }
+                    }
 
-                        if (checklistExpanded) {
-                            Column(modifier = Modifier.fillMaxWidth()) {
+                    if (checklistExpanded) {
+                        Column(modifier = Modifier.fillMaxWidth()) {
+                            if (itemsList.isNotEmpty()) {
                                 itemsList.forEach { item ->
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
@@ -244,54 +242,73 @@ private fun NoteCard(
                                 }
 
                                 Spacer(modifier = Modifier.height(8.dp))
+                            }
 
-                                Row(
-                                    modifier = Modifier.fillMaxWidth(),
-                                    horizontalArrangement = Arrangement.Start
-                                ) {
-                                    OutlinedTextField(
-                                        value = newItemText,
-                                        onValueChange = { newItemText = it },
-                                        modifier = Modifier.weight(1f),
-                                        placeholder = { Text("New item") }
-                                    )
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.Start
+                            ) {
+                                OutlinedTextField(
+                                    value = newItemText,
+                                    onValueChange = { newItemText = it },
+                                    modifier = Modifier.weight(1f),
+                                    placeholder = { Text("New item") }
+                                )
 
-                                    IconButton(onClick = {
-                                        if (newItemText.isNotBlank()) {
-                                            onChecklistAdd(note.id, newItemText)
-                                            newItemText = ""
-                                        }
-                                    }) {
-                                        Icon(
-                                            Icons.Default.Add,
-                                            contentDescription = "Add checklist item"
-                                        )
+                                IconButton(onClick = {
+                                    if (newItemText.isNotBlank()) {
+                                        onChecklistAdd(note.id, newItemText)
+                                        newItemText = ""
                                     }
+                                }) {
+                                    Icon(
+                                        Icons.Default.Add,
+                                        contentDescription = "Add checklist item"
+                                    )
                                 }
+                            }
 
-                                if (isDirty) {
-                                    Spacer(modifier = Modifier.height(8.dp))
+                            Spacer(modifier = Modifier.height(8.dp))
 
-                                    Row(
-                                        modifier = Modifier.fillMaxWidth(),
-                                        horizontalArrangement = Arrangement.End
-                                    ) {
-                                        if (isSaving) {
-                                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
-                                        } else {
-                                            TextButton(onClick = { onRevertChecklist(note.id) }) {
-                                                Text("Undo")
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.End
+                            ) {
+                                if (isSaving) {
+                                    CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                                } else {
+                                    TextButton(onClick = { onRevertChecklist(note.id) }) {
+                                        Text("Undo")
+                                    }
+
+                                    Spacer(modifier = Modifier.width(8.dp))
+
+                                    Button(
+                                        enabled = hasNonBlankItems || newItemText.isNotBlank(),
+                                        onClick = {
+                                            if (newItemText.isNotBlank()) {
+                                                onChecklistAdd(note.id, newItemText)
+                                                // clear local pending text immediately so UI reflects the action
+                                                newItemText = ""
                                             }
-
-                                            Spacer(modifier = Modifier.width(8.dp))
-
-                                            Button(onClick = { onSaveChecklist(note.id) }) {
-                                                Text("Save")
-                                            }
+                                            onSaveChecklist(note.id)
                                         }
+                                    ) {
+                                        Text("Save")
                                     }
                                 }
                             }
+                        }
+                    }
+                } else {
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.End
+                    ) {
+                        TextButton(onClick = { checklistExpanded = true }) {
+                            Text("Add checklist")
                         }
                     }
                 }

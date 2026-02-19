@@ -148,7 +148,17 @@ class NotesViewModel(
             try {
                 val note = state.notes.find { it.id == noteId } ?: return@launch
                 val checklist = note.checklist ?: NotesRepository.Checklist()
-                val updatedNote = notesRepository.updateChecklist(noteId, checklist)
+                val items = checklist.items.mapNotNull { it.text.takeIf { txt -> txt.isNotBlank() } }
+
+                val updatedNote = if (items.isEmpty()) {
+                    if (notesRepository.deleteChecklist(noteId)) {
+                        getNotes(); return@launch
+                    } else {
+                        throw Exception("Failed to delete checklist")
+                    }
+                } else {
+                    notesRepository.updateChecklist(noteId, items)
+                }
 
                 val newNotes = state.notes.map { if (it.id == noteId) updatedNote else it }
 

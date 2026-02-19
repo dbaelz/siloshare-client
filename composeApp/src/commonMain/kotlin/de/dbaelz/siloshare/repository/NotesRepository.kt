@@ -13,7 +13,8 @@ interface NotesRepository {
     suspend fun getNotes(): List<Note>
     suspend fun addNote(text: String): String
     suspend fun deleteNote(id: String): Boolean
-    suspend fun updateChecklist(noteId: String, checklist: Checklist): Note
+    suspend fun updateChecklist(noteId: String, items: List<String>): Note
+    suspend fun deleteChecklist(noteId: String): Boolean
 
     @Serializable
     data class Note(
@@ -52,12 +53,15 @@ class DefaultNotesRepository(private val httpClient: HttpClient) : NotesReposito
         return httpClient.delete("$NOTES_ENDPOINT/$id").status == HttpStatusCode.NoContent
     }
 
-    override suspend fun updateChecklist(noteId: String, checklist: Checklist): Note {
-        val items = checklist.items.map { it.text }
+    override suspend fun updateChecklist(noteId: String, items: List<String>): Note {
         return httpClient.put("$NOTES_ENDPOINT/$noteId/checklist") {
             contentType(ContentType.Application.Json)
             setBody(mapOf("items" to items))
         }.body()
+    }
+
+    override suspend fun deleteChecklist(noteId: String): Boolean {
+        return httpClient.delete("$NOTES_ENDPOINT/$noteId/checklist").status == HttpStatusCode.NoContent
     }
 
     private companion object {
