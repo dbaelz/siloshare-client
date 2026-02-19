@@ -14,10 +14,24 @@ interface NotesRepository {
     suspend fun deleteNote(id: String): Boolean
 
     @Serializable
-    data class Note(val id: String, val timestamp: Instant, val text: String)
+    data class Note(
+        val id: String,
+        val timestamp: Instant,
+        val text: String,
+        val checklist: Checklist? = null
+    )
 
     @Serializable
     data class AddNote(val text: String)
+
+    @Serializable
+    data class ChecklistItem(val id: String, val text: String, val done: Boolean = false)
+
+    @Serializable
+    data class Checklist(
+        val items: List<ChecklistItem> = emptyList(),
+        val updatedAt: Instant? = null
+    )
 }
 
 class DefaultNotesRepository(private val httpClient: HttpClient) : NotesRepository {

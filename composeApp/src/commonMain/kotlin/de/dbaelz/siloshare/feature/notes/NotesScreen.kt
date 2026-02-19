@@ -6,14 +6,16 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ContentCopy
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.ExpandLess
+import androidx.compose.material.icons.filled.ExpandMore
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.dbaelz.siloshare.repository.NotesRepository
@@ -72,6 +74,8 @@ private fun NoteCard(
 ) {
     val clipboardManager = LocalClipboardManager.current
 
+    var checklistExpanded by remember { mutableStateOf(false) }
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
@@ -101,6 +105,51 @@ private fun NoteCard(
                     fontSize = 12.sp,
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
+
+                note.checklist?.items?.let { items ->
+                    if (items.isNotEmpty()) {
+                        Spacer(modifier = Modifier.height(8.dp))
+
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                        ) {
+                            Text(text = "Checklist", fontWeight = FontWeight.Bold)
+                            IconButton(onClick = { checklistExpanded = !checklistExpanded }) {
+                                Icon(
+                                    imageVector = if (checklistExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                    contentDescription = if (checklistExpanded) "Collapse checklist" else "Expand checklist"
+                                )
+                            }
+                        }
+
+                        if (checklistExpanded) {
+                            Column(modifier = Modifier.fillMaxWidth()) {
+                                items.forEach { item ->
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.Start
+                                    ) {
+                                        Checkbox(
+                                            checked = item.done,
+                                            onCheckedChange = null,
+                                            enabled = false
+                                        )
+
+                                        Spacer(modifier = Modifier.width(8.dp))
+
+                                        Text(
+                                            text = item.text,
+                                            modifier = Modifier.weight(1f),
+                                            textDecoration = if (item.done) TextDecoration.LineThrough else TextDecoration.None,
+                                            color = if (item.done) Color.Gray else MaterialTheme.colorScheme.onSurface
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(8.dp))
 

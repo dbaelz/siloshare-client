@@ -2,6 +2,8 @@ package de.dbaelz.siloshare.repository
 
 import de.dbaelz.siloshare.network.createHttpClient
 import de.dbaelz.siloshare.repository.NotesRepository.Note
+import de.dbaelz.siloshare.repository.NotesRepository.Checklist
+import de.dbaelz.siloshare.repository.NotesRepository.ChecklistItem
 import io.ktor.client.engine.mock.*
 import io.ktor.http.*
 import kotlinx.coroutines.test.runTest
@@ -14,10 +16,25 @@ class DefaultNotesRepositoryTest {
     @Test
     fun getNotes_returnsNotesList() = runTest {
         val notes = listOf(
-            Note("1", Instant.parse("2025-08-01T00:00:00Z"), "Test note"),
-            Note("2", Instant.parse("2025-08-02T00:00:00Z"), "Another note")
+            Note(
+                "1",
+                Instant.parse("2025-08-01T00:00:00Z"),
+                "Test note",
+                checklist = Checklist(
+                    items = listOf(
+                        ChecklistItem("a", "First item", false)
+                    ),
+                    updatedAt = Instant.parse("2025-08-01T00:00:00Z")
+                )
+            ),
+            Note(
+                "2",
+                Instant.parse("2025-08-02T00:00:00Z"),
+                "Another note",
+                checklist = null
+            )
         )
-        val mockEngine = MockEngine { request ->
+        val mockEngine = MockEngine { _ ->
             respond(
                 content = Json.encodeToString(notes),
                 status = HttpStatusCode.OK,
