@@ -9,18 +9,19 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class NotesViewModelTest {
     @Test
     fun notesRefresh_dispatch_updatesState() = runTest {
-        val repo = TestNotesRepository()
+        val repo = TestNotesRepository(200)
         val dispatcher = TestActionDispatcher()
 
         val viewModel = NotesViewModel(repo, dispatcher)
 
         viewModel.state.test {
             val initialState = awaitItem()
-            assertEquals(true, initialState.isLoading)
+            assertTrue(initialState.isLoading)
             assertEquals(emptyList(), initialState.notes)
 
             delay(200)
@@ -33,4 +34,3 @@ class NotesViewModelTest {
         }
     }
 }
-

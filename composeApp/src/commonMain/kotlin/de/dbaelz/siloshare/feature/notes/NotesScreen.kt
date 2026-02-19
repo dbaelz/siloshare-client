@@ -4,23 +4,22 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ContentCopy
-import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.ExpandLess
-import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.ClipEntry
+import androidx.compose.ui.platform.Clipboard
+import androidx.compose.ui.platform.LocalClipboard
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import de.dbaelz.siloshare.repository.NotesRepository
 import de.dbaelz.siloshare.ui.ErrorText
 import de.dbaelz.siloshare.ui.Loading
+import kotlinx.coroutines.launch
 import kotlinx.datetime.LocalDateTime
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.format
@@ -41,7 +40,52 @@ fun NotesScreen() {
         NotesContent(
             message = state.message,
             notes = state.notes,
-            onDeleteClick = { viewModel.sendEvent(NotesViewModelContract.Event.Delete(it)) }
+            dirtyNoteIds = state.dirtyNoteIds,
+            savingNoteIds = state.savingNoteIds,
+            onDeleteClick = { viewModel.sendEvent(NotesViewModelContract.Event.Delete(it)) },
+            onChecklistTextChanged = { noteId, itemId, text ->
+                viewModel.sendEvent(
+                    NotesViewModelContract.Event.UpdateChecklistItemText(noteId, itemId, text)
+                )
+            },
+            onChecklistToggle = { noteId, itemId ->
+                viewModel.sendEvent(
+                    NotesViewModelContract.Event.ToggleChecklistItem(
+                        noteId,
+                        itemId
+                    )
+                )
+            },
+            onChecklistAdd = { noteId, text ->
+                viewModel.sendEvent(
+                    NotesViewModelContract.Event.AddChecklistItem(
+                        noteId,
+                        text
+                    )
+                )
+            },
+            onChecklistDelete = { noteId, itemId ->
+                viewModel.sendEvent(
+                    NotesViewModelContract.Event.DeleteChecklistItem(
+                        noteId,
+                        itemId
+                    )
+                )
+            },
+            onSaveChecklist = { noteId ->
+                viewModel.sendEvent(
+                    NotesViewModelContract.Event.SaveChecklist(
+                        noteId
+                    )
+                )
+            },
+            onRevertChecklist = { noteId ->
+                viewModel.sendEvent(
+                    NotesViewModelContract.Event.RevertChecklistEdits(
+                        noteId
+                    )
+                )
+            }
         )
     }
 
@@ -51,7 +95,15 @@ fun NotesScreen() {
 private fun NotesContent(
     message: String? = null,
     notes: List<NotesRepository.Note>,
-    onDeleteClick: (id: String) -> Unit
+    dirtyNoteIds: Set<String>,
+    savingNoteIds: Set<String>,
+    onDeleteClick: (id: String) -> Unit,
+    onChecklistTextChanged: (noteId: String, itemId: String, text: String) -> Unit,
+    onChecklistToggle: (noteId: String, itemId: String) -> Unit,
+    onChecklistAdd: (noteId: String, text: String) -> Unit,
+    onChecklistDelete: (noteId: String, itemId: String) -> Unit,
+    onSaveChecklist: (noteId: String) -> Unit,
+    onRevertChecklist: (noteId: String) -> Unit
 ) {
     LazyColumn {
         if (message != null) {
@@ -61,7 +113,18 @@ private fun NotesContent(
         }
 
         items(notes) { note ->
-            NoteCard(note = note, onDeleteClick = onDeleteClick)
+            NoteCard(
+                note = note,
+                isDirty = dirtyNoteIds.contains(note.id),
+                isSaving = savingNoteIds.contains(note.id),
+                onDeleteClick = onDeleteClick,
+                onChecklistTextChanged = onChecklistTextChanged,
+                onChecklistToggle = onChecklistToggle,
+                onChecklistAdd = onChecklistAdd,
+                onChecklistDelete = onChecklistDelete,
+                onSaveChecklist = onSaveChecklist,
+                onRevertChecklist = onRevertChecklist
+            )
         }
     }
 }
@@ -70,11 +133,21 @@ private fun NotesContent(
 @Composable
 private fun NoteCard(
     note: NotesRepository.Note,
-    onDeleteClick: (String) -> Unit
+    isDirty: Boolean,
+    isSaving: Boolean,
+    onDeleteClick: (String) -> Unit,
+    onChecklistTextChanged: (noteId: String, itemId: String, text: String) -> Unit,
+    onChecklistToggle: (noteId: String, itemId: String) -> Unit,
+    onChecklistAdd: (noteId: String, text: String) -> Unit,
+    onChecklistDelete: (noteId: String, itemId: String) -> Unit,
+    onSaveChecklist: (noteId: String) -> Unit,
+    onRevertChecklist: (noteId: String) -> Unit
 ) {
     val clipboardManager = LocalClipboardManager.current
+    val coroutineScope = rememberCoroutineScope()
 
     var checklistExpanded by remember { mutableStateOf(false) }
+    var newItemText by remember { mutableStateOf("") }
 
     Card(
         modifier = Modifier
@@ -106,8 +179,8 @@ private fun NoteCard(
                     color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
 
-                note.checklist?.items?.let { items ->
-                    if (items.isNotEmpty()) {
+                note.checklist?.items?.let { itemsList ->
+                    if (itemsList.isNotEmpty()) {
                         Spacer(modifier = Modifier.height(8.dp))
 
                         Row(
@@ -125,25 +198,97 @@ private fun NoteCard(
 
                         if (checklistExpanded) {
                             Column(modifier = Modifier.fillMaxWidth()) {
-                                items.forEach { item ->
+                                itemsList.forEach { item ->
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
                                         horizontalArrangement = Arrangement.Start
                                     ) {
                                         Checkbox(
                                             checked = item.done,
-                                            onCheckedChange = null,
-                                            enabled = false
+                                            onCheckedChange = {
+                                                onChecklistToggle(
+                                                    note.id,
+                                                    item.id
+                                                )
+                                            }
                                         )
 
                                         Spacer(modifier = Modifier.width(8.dp))
 
-                                        Text(
-                                            text = item.text,
-                                            modifier = Modifier.weight(1f),
-                                            textDecoration = if (item.done) TextDecoration.LineThrough else TextDecoration.None,
-                                            color = if (item.done) Color.Gray else MaterialTheme.colorScheme.onSurface
+                                        OutlinedTextField(
+                                            value = item.text,
+                                            onValueChange = {
+                                                onChecklistTextChanged(
+                                                    note.id,
+                                                    item.id,
+                                                    it
+                                                )
+                                            },
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .padding(end = 8.dp)
                                         )
+
+                                        IconButton(onClick = {
+                                            onChecklistDelete(
+                                                note.id,
+                                                item.id
+                                            )
+                                        }) {
+                                            Icon(
+                                                Icons.Default.Delete,
+                                                contentDescription = "Delete checklist item"
+                                            )
+                                        }
+                                    }
+                                }
+
+                                Spacer(modifier = Modifier.height(8.dp))
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.Start
+                                ) {
+                                    OutlinedTextField(
+                                        value = newItemText,
+                                        onValueChange = { newItemText = it },
+                                        modifier = Modifier.weight(1f),
+                                        placeholder = { Text("New item") }
+                                    )
+
+                                    IconButton(onClick = {
+                                        if (newItemText.isNotBlank()) {
+                                            onChecklistAdd(note.id, newItemText)
+                                            newItemText = ""
+                                        }
+                                    }) {
+                                        Icon(
+                                            Icons.Default.Add,
+                                            contentDescription = "Add checklist item"
+                                        )
+                                    }
+                                }
+
+                                if (isDirty) {
+                                    Spacer(modifier = Modifier.height(8.dp))
+
+                                    Row(
+                                        modifier = Modifier.fillMaxWidth(),
+                                        horizontalArrangement = Arrangement.End
+                                    ) {
+                                        if (isSaving) {
+                                            CircularProgressIndicator(modifier = Modifier.size(24.dp))
+                                        } else {
+                                            TextButton(onClick = { onRevertChecklist(note.id) }) {
+                                                Text("Undo")
+                                            }
+
+                                            Spacer(modifier = Modifier.width(8.dp))
+
+                                            Button(onClick = { onSaveChecklist(note.id) }) {
+                                                Text("Save")
+                                            }
+                                        }
                                     }
                                 }
                             }

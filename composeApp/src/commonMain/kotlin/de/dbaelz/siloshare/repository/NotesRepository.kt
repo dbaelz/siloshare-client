@@ -1,5 +1,6 @@
 package de.dbaelz.siloshare.repository
 
+import de.dbaelz.siloshare.repository.NotesRepository.Checklist
 import de.dbaelz.siloshare.repository.NotesRepository.Note
 import io.ktor.client.*
 import io.ktor.client.call.*
@@ -12,6 +13,7 @@ interface NotesRepository {
     suspend fun getNotes(): List<Note>
     suspend fun addNote(text: String): String
     suspend fun deleteNote(id: String): Boolean
+    suspend fun updateChecklist(noteId: String, checklist: Checklist): Note
 
     @Serializable
     data class Note(
@@ -48,6 +50,14 @@ class DefaultNotesRepository(private val httpClient: HttpClient) : NotesReposito
 
     override suspend fun deleteNote(id: String): Boolean {
         return httpClient.delete("$NOTES_ENDPOINT/$id").status == HttpStatusCode.NoContent
+    }
+
+    override suspend fun updateChecklist(noteId: String, checklist: Checklist): Note {
+        val items = checklist.items.map { it.text }
+        return httpClient.put("$NOTES_ENDPOINT/$noteId/checklist") {
+            contentType(ContentType.Application.Json)
+            setBody(mapOf("items" to items))
+        }.body()
     }
 
     private companion object {
