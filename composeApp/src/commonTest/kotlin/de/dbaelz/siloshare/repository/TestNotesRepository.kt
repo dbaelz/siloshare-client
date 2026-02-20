@@ -34,10 +34,10 @@ class TestNotesRepository(val delayMillis: Long = 0L) : NotesRepository {
         return true
     }
 
-    override suspend fun updateChecklist(noteId: String, items: List<String>): Note {
+    override suspend fun updateChecklist(noteId: String, items: List<NewChecklistItem>): Note {
         delay(delayMillis)
         val checklist = Checklist(
-            items = items.mapIndexed { idx, text -> ChecklistItem("item-$idx", text, false) },
+            items = items.mapIndexed { idx, newItem -> ChecklistItem("item-$idx", newItem.text, newItem.done) },
             updatedAt = Instant.parse("2026-01-18T00:00:00Z")
         )
         return Note(

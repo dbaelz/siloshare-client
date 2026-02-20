@@ -3,7 +3,7 @@ agp = "8.12.3"
 android-compileSdk = "36"
 android-minSdk = "24"
 android-targetSdk = "36"
-versionCode = "4"
+versionCode = "5"
 versionName = "3.0.0"
 
 androidx-activity = "1.12.4"

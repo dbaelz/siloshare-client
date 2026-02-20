@@ -13,7 +13,7 @@ interface NotesRepository {
     suspend fun getNotes(): List<Note>
     suspend fun addNote(text: String): String
     suspend fun deleteNote(id: String): Boolean
-    suspend fun updateChecklist(noteId: String, items: List<String>): Note
+    suspend fun updateChecklist(noteId: String, items: List<NewChecklistItem>): Note
     suspend fun deleteChecklist(noteId: String): Boolean
 
     @Serializable
@@ -35,6 +35,9 @@ interface NotesRepository {
         val items: List<ChecklistItem> = emptyList(),
         val updatedAt: Instant? = null
     )
+
+    @Serializable
+    data class NewChecklistItem(val text: String, val done: Boolean = false)
 }
 
 class DefaultNotesRepository(private val httpClient: HttpClient) : NotesRepository {
@@ -53,7 +56,7 @@ class DefaultNotesRepository(private val httpClient: HttpClient) : NotesReposito
         return httpClient.delete("$NOTES_ENDPOINT/$id").status == HttpStatusCode.NoContent
     }
 
-    override suspend fun updateChecklist(noteId: String, items: List<String>): Note {
+    override suspend fun updateChecklist(noteId: String, items: List<NotesRepository.NewChecklistItem>): Note {
         return httpClient.put("$NOTES_ENDPOINT/$noteId/checklist") {
             contentType(ContentType.Application.Json)
             setBody(mapOf("items" to items))

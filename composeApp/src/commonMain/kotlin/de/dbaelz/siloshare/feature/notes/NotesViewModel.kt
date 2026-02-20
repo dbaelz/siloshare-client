@@ -161,7 +161,13 @@ class NotesViewModel(
             try {
                 val note = state.notes.find { it.id == noteId } ?: return@launch
                 val checklist = note.checklist ?: NotesRepository.Checklist()
-                val items = checklist.items.mapNotNull { it.text.takeIf { txt -> txt.isNotBlank() } }
+                val items = checklist.items
+                    .mapNotNull { item ->
+                        val text = item.text.trim()
+                        if (text.isNotEmpty()) {
+                            NotesRepository.NewChecklistItem(text = text, done = item.done)
+                        } else null
+                    }
 
                 val updatedNote = if (items.isEmpty()) {
                     if (notesRepository.deleteChecklist(noteId)) {
@@ -192,7 +198,12 @@ class NotesViewModel(
                     sendEvent(InternalEvent.GetNotesSuccess(notes))
                     sendEvent(InternalEvent.DeleteChecklistSuccess(noteId))
                 } else {
-                    sendEvent(InternalEvent.DeleteChecklistError(noteId, Exception("Failed to delete checklist")))
+                    sendEvent(
+                        InternalEvent.DeleteChecklistError(
+                            noteId,
+                            Exception("Failed to delete checklist")
+                        )
+                    )
                 }
             } catch (e: Exception) {
                 sendEvent(InternalEvent.DeleteChecklistError(noteId, e))
