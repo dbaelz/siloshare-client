@@ -14,6 +14,7 @@ object NotesViewModelContract {
 
     sealed interface Event {
         data class Delete(val id: String) : Event
+        data class DeleteChecklist(val noteId: String) : Event
 
         data class UpdateChecklistItemText(val noteId: String, val itemId: String, val text: String) : Event
         data class ToggleChecklistItem(val noteId: String, val itemId: String) : Event

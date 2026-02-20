@@ -64,6 +64,11 @@ class NotesViewModel(
                 state.copy(isLoading = true, message = null)
             }
 
+            is Event.DeleteChecklist -> {
+                deleteChecklist(event.noteId)
+                state.copy(savingNoteIds = state.savingNoteIds + event.noteId)
+            }
+
             is Event.UpdateChecklistItemText -> {
                 val note = state.notes.find { it.id == event.noteId } ?: return state
                 val original = state.originalChecklists[event.noteId] ?: note.checklist
@@ -114,6 +119,14 @@ class NotesViewModel(
 
             is InternalEvent.DeleteNoteError -> {
                 state.copy(isLoading = false, message = "Error deleting note ${event.id}")
+            }
+
+            is InternalEvent.DeleteChecklistSuccess -> {
+                handleSaveSuccess(state, event.noteId)
+            }
+
+            is InternalEvent.DeleteChecklistError -> {
+                handleSaveError(state, event.noteId, event.error)
             }
         }
     }
@@ -167,6 +180,22 @@ class NotesViewModel(
                 sendEvent(InternalEvent.SaveChecklistSuccess(noteId))
             } catch (e: Exception) {
                 sendEvent(InternalEvent.SaveChecklistError(noteId, e))
+            }
+        }
+    }
+
+    private fun deleteChecklist(noteId: String) {
+        viewModelScope.launch {
+            try {
+                if (notesRepository.deleteChecklist(noteId)) {
+                    val notes = notesRepository.getNotes().sortedByDescending { it.timestamp }
+                    sendEvent(InternalEvent.GetNotesSuccess(notes))
+                    sendEvent(InternalEvent.DeleteChecklistSuccess(noteId))
+                } else {
+                    sendEvent(InternalEvent.DeleteChecklistError(noteId, Exception("Failed to delete checklist")))
+                }
+            } catch (e: Exception) {
+                sendEvent(InternalEvent.DeleteChecklistError(noteId, e))
             }
         }
     }
@@ -242,5 +271,7 @@ class NotesViewModel(
         data class DeleteNoteError(val id: String) : InternalEvent
         data class SaveChecklistSuccess(val noteId: String) : InternalEvent
         data class SaveChecklistError(val noteId: String, val error: Throwable) : InternalEvent
+        data class DeleteChecklistSuccess(val noteId: String) : InternalEvent
+        data class DeleteChecklistError(val noteId: String, val error: Throwable) : InternalEvent
     }
 }

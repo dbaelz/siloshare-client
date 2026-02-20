@@ -81,6 +81,9 @@ fun NotesScreen() {
                         noteId
                     )
                 )
+            },
+            onDeleteChecklist = { noteId ->
+                viewModel.sendEvent(NotesViewModelContract.Event.DeleteChecklist(noteId))
             }
         )
     }
@@ -99,7 +102,8 @@ private fun NotesContent(
     onChecklistAdd: (noteId: String, text: String) -> Unit,
     onChecklistDelete: (noteId: String, itemId: String) -> Unit,
     onSaveChecklist: (noteId: String) -> Unit,
-    onRevertChecklist: (noteId: String) -> Unit
+    onRevertChecklist: (noteId: String) -> Unit,
+    onDeleteChecklist: (noteId: String) -> Unit
 ) {
     LazyColumn {
         if (message != null) {
@@ -119,7 +123,8 @@ private fun NotesContent(
                 onChecklistAdd = onChecklistAdd,
                 onChecklistDelete = onChecklistDelete,
                 onSaveChecklist = onSaveChecklist,
-                onRevertChecklist = onRevertChecklist
+                onRevertChecklist = onRevertChecklist,
+                onDeleteChecklist = onDeleteChecklist
             )
         }
     }
@@ -137,12 +142,14 @@ private fun NoteCard(
     onChecklistAdd: (noteId: String, text: String) -> Unit,
     onChecklistDelete: (noteId: String, itemId: String) -> Unit,
     onSaveChecklist: (noteId: String) -> Unit,
-    onRevertChecklist: (noteId: String) -> Unit
+    onRevertChecklist: (noteId: String) -> Unit,
+    onDeleteChecklist: (noteId: String) -> Unit
 ) {
     val clipboardManager = LocalClipboardManager.current
 
     var checklistExpanded by remember { mutableStateOf(false) }
     var newItemText by remember { mutableStateOf("") }
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -185,12 +192,37 @@ private fun NoteCard(
                         horizontalArrangement = Arrangement.SpaceBetween,
                     ) {
                         Text(text = "Checklist", fontWeight = FontWeight.Bold)
-                        IconButton(onClick = { checklistExpanded = !checklistExpanded }) {
-                            Icon(
-                                imageVector = if (checklistExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
-                                contentDescription = if (checklistExpanded) "Collapse checklist" else "Expand checklist"
-                            )
+                        Row {
+                            if (itemsList.isNotEmpty()) {
+                                IconButton(onClick = { showDeleteDialog = true }) {
+                                    Icon(Icons.Default.Delete, contentDescription = "Delete checklist")
+                                }
+                            }
+
+                            IconButton(onClick = { checklistExpanded = !checklistExpanded }) {
+                                Icon(
+                                    imageVector = if (checklistExpanded) Icons.Default.ExpandLess else Icons.Default.ExpandMore,
+                                    contentDescription = if (checklistExpanded) "Collapse checklist" else "Expand checklist"
+                                )
+                            }
                         }
+                    }
+
+                    if (showDeleteDialog) {
+                        AlertDialog(
+                            onDismissRequest = { showDeleteDialog = false },
+                            confirmButton = {
+                                TextButton(onClick = {
+                                    showDeleteDialog = false
+                                    onDeleteChecklist(note.id)
+                                }) { Text("Delete") }
+                            },
+                            dismissButton = {
+                                TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") }
+                            },
+                            title = { Text("Delete checklist") },
+                            text = { Text("Are you sure you want to delete the entire checklist for this note?") }
+                        )
                     }
 
                     if (checklistExpanded) {
